@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiCrediMoto — Modelo de Dilución SAFE + Serie A</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1B2A4A;
+  --navy-light: #2D4470;
+  --amber: #D4930D;
+  --amber-light: #F5B731;
+  --cream: #FFF8ED;
+  --bg: #F7F5F0;
+  --card: #FFFFFF;
+  --text: #2C2C2C;
+  --muted: #6B7280;
+  --border: #E5E1D8;
+  --green: #059669;
+  --blue: #2563EB;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+
+.header {
+  background: linear-gradient(135deg, var(--navy), var(--navy-light));
+  padding: 28px 24px; color: white;
+}
+.header .tag { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; color: var(--amber-light); text-transform: uppercase; margin-bottom: 4px; }
+.header h1 { font-size: 22px; font-weight: 700; }
+.header .meta { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+
+.container { max-width: 920px; margin: 0 auto; padding: 0 16px 60px; }
+
+.controls {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; margin-top: 20px;
+}
+.controls h2 {
+  font-size: 13px; font-weight: 700; color: var(--navy);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+}
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+
+.slider-group { margin-bottom: 14px; }
+.slider-header { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.slider-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; }
+.slider-value { font-size: 13px; font-weight: 700; color: var(--text); }
+.slider-group input[type=range] { width: 100%; accent-color: var(--amber); }
+.section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+
+/* Comparison box */
+.comparison {
+  background: linear-gradient(135deg, #FFF7ED, #FEF3C7);
+  border: 2px solid var(--amber); border-radius: 12px;
+  padding: 20px; margin-top: 20px;
+}
+.comparison h2 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+.comp-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.comp-card {
+  background: rgba(255,255,255,0.7); border-radius: 8px;
+  padding: 12px; text-align: center;
+}
+.comp-card .comp-label { font-size: 10px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.comp-card .comp-value { font-size: 22px; font-weight: 700; }
+.comp-card .comp-value.highlight { color: var(--amber); }
+.comp-card .comp-value.dim { color: var(--muted); }
+.comp-card .comp-value.navy { color: var(--navy); }
+.comparison .note { font-size: 12px; color: #78350F; margin-top: 14px; line-height: 1.6; }
+
+/* Scenarios */
+.scenarios-title {
+  font-size: 13px; font-weight: 700; color: var(--navy);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-top: 28px; margin-bottom: 16px;
+}
+.scenarios-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.scenario {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; position: relative;
+}
+.scenario.highlight {
+  background: linear-gradient(135deg, #FFF7ED, #FEF3C7);
+  border: 2px solid var(--amber);
+}
+.scenario .badge {
+  position: absolute; top: -10px; right: 14px;
+  padding: 3px 10px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; color: white;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.scenario .badge.amber { background: var(--amber); }
+.scenario .badge.gray { background: var(--muted); }
+.scenario h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+
+.pie-row { display: flex; gap: 16px; align-items: center; margin-bottom: 14px; }
+.legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.legend-label { font-size: 11px; color: var(--muted); flex: 1; }
+.legend-pct { font-size: 12px; font-weight: 700; color: var(--text); }
+
+.metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.metric {
+  background: rgba(0,0,0,0.03); border-radius: 6px; padding: 7px 10px;
+}
+.metric .m-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; }
+.metric .m-value { font-size: 13px; font-weight: 700; color: var(--text); }
+.metric .m-value.hl { color: var(--amber); }
+
+/* Recommendation */
+.reco {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 4px solid var(--navy);
+  border-radius: 12px; padding: 20px; margin-top: 20px;
+}
+.reco h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+.reco p { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 8px; }
+.reco .cta { color: #92400E; font-weight: 600; }
+
+@media (max-width: 700px) {
+  .controls-grid, .scenarios-grid, .comp-grid { grid-template-columns: 1fr; }
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tag">Modelo de Dilución Interactivo</div>
+  <h1>MiCrediMoto — SAFE + Serie A</h1>
+  <div class="meta">AIDA Ventures · Abril 2026 · Confidencial</div>
+</div>
+
+<div class="container">
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <h2>Variables del Modelo</h2>
+    <div class="controls-grid">
+      <div>
+        <div class="section-label" style="color:var(--amber)">SAFE</div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">Valuation Cap</span>
+            <span class="slider-value" id="lbl-cap">$10.0M</span>
+          </div>
+          <input type="range" id="sl-cap" min="5" max="25" step="0.5" value="10" oninput="update()">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">Monto SAFE</span>
+            <span class="slider-value" id="lbl-amt">$1.0M</span>
+          </div>
+          <input type="range" id="sl-amt" min="0.25" max="3" step="0.25" value="1" oninput="update()">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">Descuento</span>
+            <span class="slider-value" id="lbl-disc">20%</span>
+          </div>
+          <input type="range" id="sl-disc" min="0" max="30" step="5" value="20" oninput="update()">
+        </div>
+      </div>
+      <div>
+        <div class="section-label" style="color:var(--blue)">Serie A (Post-ACCIAL)</div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">Pre-money Serie A</span>
+            <span class="slider-value" id="lbl-apre">$22.0M</span>
+          </div>
+          <input type="range" id="sl-apre" min="15" max="35" step="1" value="22" oninput="update()">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">Monto Serie A</span>
+            <span class="slider-value" id="lbl-aamt">$3.0M</span>
+          </div>
+          <input type="range" id="sl-aamt" min="1" max="8" step="0.5" value="3" oninput="update()">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">ESOP Pool</span>
+            <span class="slider-value" id="lbl-esop">10%</span>
+          </div>
+          <input type="range" id="sl-esop" min="0" max="15" step="1" value="10" oninput="update()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARISON -->
+  <div class="comparison">
+    <h2 id="comp-title">Comparación Clave: Cap $10.0M vs $23M</h2>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-label" id="comp-lbl1">Ownership SAFE @ $10.0M</div>
+        <div class="comp-value highlight" id="comp-val1">10.0%</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-label">Ownership SAFE @ $23M</div>
+        <div class="comp-value dim" id="comp-val2">4.3%</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-label">Diferencia de Upside</div>
+        <div class="comp-value navy" id="comp-val3">2.3x más</div>
+      </div>
+    </div>
+    <div class="note" id="comp-note"></div>
+  </div>
+
+  <!-- SCENARIOS -->
+  <div class="scenarios-title">Escenarios de Dilución Paso a Paso</div>
+  <div class="scenarios-grid">
+    <div class="scenario highlight" id="sc1">
+      <div class="badge amber" id="sc1-badge">Hoy</div>
+      <h3 id="sc1-title">1. Post-SAFE (Cap $10.0M)</h3>
+      <div class="pie-row">
+        <canvas id="pie1" width="130" height="130"></canvas>
+        <div id="leg1"></div>
+      </div>
+      <div class="metrics-grid" id="met1"></div>
+    </div>
+    <div class="scenario" id="sc2">
+      <h3>2. Post-SAFE + ESOP</h3>
+      <div class="pie-row">
+        <canvas id="pie2" width="130" height="130"></canvas>
+        <div id="leg2"></div>
+      </div>
+      <div class="metrics-grid" id="met2"></div>
+    </div>
+    <div class="scenario highlight" id="sc3">
+      <div class="badge amber" id="sc3-badge">Múltiplo: 2.2x</div>
+      <h3 id="sc3-title">3. Post Serie A (Cap $10.0M)</h3>
+      <div class="pie-row">
+        <canvas id="pie3" width="130" height="130"></canvas>
+        <div id="leg3"></div>
+      </div>
+      <div class="metrics-grid" id="met3"></div>
+    </div>
+    <div class="scenario" id="sc4">
+      <div class="badge gray" id="sc4-badge">Múltiplo: 1.0x</div>
+      <h3>3b. Post Serie A (Cap $23M)</h3>
+      <div class="pie-row">
+        <canvas id="pie4" width="130" height="130"></canvas>
+        <div id="leg4"></div>
+      </div>
+      <div class="metrics-grid" id="met4"></div>
+    </div>
+  </div>
+
+  <!-- RECOMMENDATION -->
+  <div class="reco">
+    <h3>Análisis para el CEO</h3>
+    <p id="reco1"></p>
+    <p id="reco2"></p>
+    <p class="cta" id="reco3"></p>
+  </div>
+
+</div>
+
+<script>
+const COLS = { founders: "#1B2A4A", safe: "#D4930D", serieA: "#2563EB", esop: "#059669" };
+
+function fP(v) { return (v * 100).toFixed(1) + "%"; }
+function fM(v) { return "$" + v.toFixed(1) + "M"; }
+
+function drawPie(canvasId, slices) {
+  const c = document.getElementById(canvasId);
+  const ctx = c.getContext("2d");
+  const s = c.width, r = s / 2 - 6, cx = s / 2, cy = s / 2;
+  ctx.clearRect(0, 0, s, s);
+  let angle = -Math.PI / 2;
+  slices.forEach(sl => {
+    if (sl.pct <= 0.001) return;
+    const sweep = sl.pct * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, angle, angle + sweep);
+    ctx.closePath();
+    ctx.fillStyle = sl.color;
+    ctx.fill();
+    angle += sweep;
+  });
+}
+
+function legend(id, slices) {
+  document.getElementById(id).innerHTML = slices.map(s =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div><span class="legend-label">${s.label}</span><span class="legend-pct">${fP(s.pct)}</span></div>`
+  ).join("");
+}
+
+function metrics(id, arr) {
+  document.getElementById(id).innerHTML = arr.map(m =>
+    `<div class="metric"><div class="m-label">${m[0]}</div><div class="m-value${m[2] ? " hl" : ""}">${m[1]}</div></div>`
+  ).join("");
+}
+
+function update() {
+  const cap = +document.getElementById("sl-cap").value;
+  const amt = +document.getElementById("sl-amt").value;
+  const disc = +document.getElementById("sl-disc").value;
+  const apre = +document.getElementById("sl-apre").value;
+  const aamt = +document.getElementById("sl-aamt").value;
+  const esop = +document.getElementById("sl-esop").value;
+
+  document.getElementById("lbl-cap").textContent = fM(cap);
+  document.getElementById("lbl-amt").textContent = fM(amt);
+  document.getElementById("lbl-disc").textContent = disc + "%";
+  document.getElementById("lbl-apre").textContent = fM(apre);
+  document.getElementById("lbl-aamt").textContent = fM(aamt);
+  document.getElementById("lbl-esop").textContent = esop + "%";
+
+  // Post-SAFE
+  const safeOwn = amt / cap;
+  const founders1 = 1 - safeOwn;
+
+  // Post-SAFE + ESOP
+  const esopFrac = esop / 100;
+  const founders2 = founders1 * (1 - esopFrac);
+  const safe2 = safeOwn * (1 - esopFrac);
+
+  // Post Serie A (cap variable)
+  const discPrice = apre * (1 - disc / 100);
+  const convVal = Math.min(cap, discPrice);
+  const safeShares = amt / convVal;
+  const aShares = aamt / apre;
+  const totalA = 1 + safeShares + aShares + esopFrac;
+  const foundersA = 1 / totalA;
+  const safeA = safeShares / totalA;
+  const serieAA = aShares / totalA;
+  const esopA = esopFrac / totalA;
+  const postMoney = apre + aamt;
+  const safeValA = safeA * postMoney;
+  const safeMult = safeValA / amt;
+
+  // Cap $23M comparison
+  const safe23Own = amt / 23;
+  const conv23 = Math.min(23, discPrice);
+  const safe23Shares = amt / conv23;
+  const total23A = 1 + safe23Shares + aShares + esopFrac;
+  const founders23A = 1 / total23A;
+  const safe23A = safe23Shares / total23A;
+  const serieA23A = aShares / total23A;
+  const esop23A = esopFrac / total23A;
+  const safe23ValA = safe23A * postMoney;
+  const safe23Mult = safe23ValA / amt;
+
+  // COMPARISON BOX
+  document.getElementById("comp-title").textContent = `Comparación Clave: Cap ${fM(cap)} vs $23M`;
+  document.getElementById("comp-lbl1").textContent = `Ownership SAFE @ ${fM(cap)}`;
+  document.getElementById("comp-val1").textContent = fP(safeOwn);
+  document.getElementById("comp-val2").textContent = fP(safe23Own);
+  const ratio = safe23Mult > 0.01 ? (safeMult / safe23Mult).toFixed(1) : "—";
+  document.getElementById("comp-val3").textContent = ratio + "x más";
+  document.getElementById("comp-note").innerHTML =
+    `Con cap de ${fM(cap)}, el inversionista SAFE obtiene <strong>${fP(safeOwn)}</strong> vs <strong>${fP(safe23Own)}</strong> con cap de $23M. En la Serie A, el múltiplo del SAFE es <strong>${safeMult.toFixed(1)}x</strong> vs <strong>${safe23Mult.toFixed(1)}x</strong>. Esa diferencia es lo que convierte un "no gracias" en un "dónde firmo."`;
+
+  // SCENARIO 1
+  document.getElementById("sc1-title").textContent = `1. Post-SAFE (Cap ${fM(cap)})`;
+  const sl1 = [{ label: "Fundadores", pct: founders1, color: COLS.founders }, { label: "SAFE", pct: safeOwn, color: COLS.safe }];
+  drawPie("pie1", sl1); legend("leg1", sl1);
+  metrics("met1", [["Ownership SAFE", fP(safeOwn), true], ["Founders", fP(founders1)], ["Cap", fM(cap)], ["Monto SAFE", fM(amt)]]);
+
+  // SCENARIO 2
+  const sl2 = [{ label: "Fundadores", pct: founders2, color: COLS.founders }, { label: "SAFE", pct: safe2, color: COLS.safe }, { label: "ESOP", pct: esopFrac, color: COLS.esop }];
+  drawPie("pie2", sl2); legend("leg2", sl2);
+  metrics("met2", [["Founders", fP(founders2)], ["SAFE", fP(safe2)], ["ESOP Pool", fP(esopFrac)], ["Dilución ESOP", esop + "%"]]);
+
+  // SCENARIO 3
+  document.getElementById("sc3-title").textContent = `3. Post Serie A (Cap ${fM(cap)})`;
+  document.getElementById("sc3-badge").textContent = `Múltiplo: ${safeMult.toFixed(1)}x`;
+  const sl3 = [{ label: "Fundadores", pct: foundersA, color: COLS.founders }, { label: "SAFE", pct: safeA, color: COLS.safe }, { label: "ESOP", pct: esopA, color: COLS.esop }, { label: "Serie A", pct: serieAA, color: COLS.serieA }];
+  drawPie("pie3", sl3); legend("leg3", sl3);
+  metrics("met3", [["Founders", fP(foundersA)], ["SAFE", fP(safeA), true], ["Serie A", fP(serieAA)], ["Post-money", fM(postMoney)], ["Valor SAFE en Serie A", fM(safeValA), true], ["Múltiplo SAFE", safeMult.toFixed(1) + "x", true]]);
+
+  // SCENARIO 4
+  document.getElementById("sc4-badge").textContent = `Múltiplo: ${safe23Mult.toFixed(1)}x`;
+  const sl4 = [{ label: "Fundadores", pct: founders23A, color: COLS.founders }, { label: "SAFE", pct: safe23A, color: COLS.safe }, { label: "ESOP", pct: esop23A, color: COLS.esop }, { label: "Serie A", pct: serieA23A, color: COLS.serieA }];
+  drawPie("pie4", sl4); legend("leg4", sl4);
+  metrics("met4", [["Founders", fP(founders23A)], ["SAFE", fP(safe23A), true], ["Serie A", fP(serieA23A)], ["Post-money", fM(postMoney)], ["Valor SAFE en Serie A", fM(safe23ValA), true], ["Múltiplo SAFE", safe23Mult.toFixed(1) + "x", true]]);
+
+  // RECOMMENDATION
+  document.getElementById("reco1").innerHTML =
+    `Con cap de <strong>${fM(cap)}</strong> y SAFE de <strong>${fM(amt)}</strong>, los fundadores retienen <strong>${fP(founders1)}</strong> post-SAFE. Después de ESOP y Serie A, retienen <strong>${fP(foundersA)}</strong> — un rango saludable para fundadores en etapa pre-Serie A en LatAm.`;
+  document.getElementById("reco2").innerHTML =
+    `El inversionista del SAFE obtiene un múltiplo de <strong>${safeMult.toFixed(1)}x en papel</strong> en la Serie A, vs apenas <strong>${safe23Mult.toFixed(1)}x</strong> con el cap de $23M. Esa diferencia es lo que convierte un deal que se muere en el pipeline en uno que se cierra con urgencia.`;
+  document.getElementById("reco3").innerHTML =
+    `Recomendación: Aceptar cap de ${fM(cap)}. La dilución adicional para los fundadores es de ${fP(safeOwn - safe23Own)} (${fP(safeOwn)} vs ${fP(safe23Own)}), pero la velocidad de cierre y la calidad de inversionistas que atrae compensa con creces.`;
+}
+
+update();
+</script>
+</body>
+</html>
